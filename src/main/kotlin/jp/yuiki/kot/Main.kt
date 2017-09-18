@@ -5,7 +5,15 @@ import java.net.ServerSocket
 
 fun main(args: Array<String>) {
     println("start >>>")
-    val server = ServerSocket(8080)
+    ServerSocket(8080).use {
+        while (true) {
+            process(it)
+        }
+    }
+    println("<<< end")
+}
+
+fun process(server: ServerSocket) {
     val socket = server.accept()
     val input = socket.getInputStream()
     val request = Request(input)
@@ -32,6 +40,4 @@ fun main(args: Array<String>) {
     input.close()
     output.close()
     socket.close()
-    server.close()
-    println("<<< end")
 }
