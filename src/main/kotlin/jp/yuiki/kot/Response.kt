@@ -2,12 +2,12 @@ package jp.yuiki.kot
 
 import java.io.OutputStream
 
-class Response(val status: Status, val headers: HashMap<String, String>, val body: String) {
+class Response(val status: Status, val headers: Headers, val body: String) {
     fun send(out: OutputStream) {
         val io = IOWrapper(out)
         io.println("HTTP/1.1 ${this.status}")
 
-        headers.forEach { k, v -> io.println("$k: $v") }
+        headers.headers.forEach { k, v -> io.println("$k: $v") }
 
         io.println()
         io.print(body)
@@ -15,7 +15,7 @@ class Response(val status: Status, val headers: HashMap<String, String>, val bod
 
     class Builder {
         var status = Status.OK
-        var headers = HashMap<String, String>()
+        var headers = Headers()
         var body = ""
 
         fun status(status: Status): Builder {
@@ -29,7 +29,7 @@ class Response(val status: Status, val headers: HashMap<String, String>, val bod
         }
 
         fun addHeader(name: String, value: String): Builder {
-            headers[name] = value
+            headers.headers[name] = value
             return this
         }
 

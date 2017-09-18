@@ -8,7 +8,7 @@ import java.util.*
 class Request(input: InputStream) {
     val reader = BufferedReader(InputStreamReader(input, "UTF-8"))
     var requestLine = ""
-    val headers = HashMap<String, String>()
+    val headers = Headers()
     var body = ""
 
     init {
@@ -34,11 +34,11 @@ class Request(input: InputStream) {
         // 行末の改行を削除
         headersStr.setLength(headersStr.length - 1)
 
-        makeHeadersMap(headersStr.toString())
+        headers.makeHeadersMap(headersStr.toString())
     }
 
     fun readBody() {
-        var bodyChars = CharArray(headers["Content-Length"]?.toIntOrNull() ?: 0)
+        var bodyChars = CharArray(headers.getContentLength())
         reader.read(bodyChars)
         bodyChars = deleteTrailingNullChars(bodyChars)
         body = String(bodyChars)
@@ -55,12 +55,5 @@ class Request(input: InputStream) {
             }
         }
         return Arrays.copyOf(chars, size)
-    }
-
-    fun makeHeadersMap(headersStr: String) {
-        headersStr.split("\n").forEach { headerStr ->
-            val splits = headerStr.split(':', limit = 2)
-            headers[splits[0].trim()] = splits[1].trim()
-        }
     }
 }
