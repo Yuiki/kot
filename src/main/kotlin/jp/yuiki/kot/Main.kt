@@ -1,5 +1,6 @@
 package jp.yuiki.kot
 
+import java.io.File
 import java.net.ServerSocket
 
 fun main(args: Array<String>) {
@@ -11,13 +12,14 @@ fun main(args: Array<String>) {
     println(request.requestLine)
     println(request.headers)
     println(request.body)
-    val response = Response.Builder()
-            .status(Status.OK)
-            .addHeader("Content-Type", ContentType.TEXT_HTML.toString())
-            .body("<h1>Hello, World!</h1>")
-            .build()
+    val responseBuilder = Response.Builder().status(Status.OK)
+    if (request.isGet()) {
+        responseBuilder.body(File("./src/main/resources/${request.path}"))
+    } else if (request.isPost()) {
+        responseBuilder.body(request.body)
+    }
     val output = socket.getOutputStream()
-    response.send(output)
+    responseBuilder.build().send(output)
     input.close()
     output.close()
     socket.close()

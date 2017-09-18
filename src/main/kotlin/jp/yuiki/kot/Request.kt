@@ -3,11 +3,14 @@ package jp.yuiki.kot
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.net.URLDecoder
 import java.util.*
 
 class Request(input: InputStream) {
     val reader = BufferedReader(InputStreamReader(input, "UTF-8"))
     var requestLine = ""
+    var method: Method? = null
+    var path: String? = null
     val headers = Headers()
     var body = ""
 
@@ -21,6 +24,9 @@ class Request(input: InputStream) {
         val line = reader.readLine()
         if (line.isNotEmpty()) {
             requestLine = line
+            val splits = requestLine.split("\\s".toRegex())
+            method = Method.valueOf(splits[0].toUpperCase())
+            path = URLDecoder.decode(splits[1], "UTF-8")
         }
     }
 
@@ -55,5 +61,13 @@ class Request(input: InputStream) {
             }
         }
         return Arrays.copyOf(chars, size)
+    }
+
+    fun isGet(): Boolean {
+        return method == Method.GET
+    }
+
+    fun isPost(): Boolean {
+        return method == Method.POST
     }
 }

@@ -11,6 +11,6 @@ class Headers {
     }
 
     fun getContentLength(): Int {
-        return headers["Content-Length"]?.toIntOrNull() ?: -1
+        return headers["Content-Length"]?.toIntOrNull() ?: 0
     }
 }
