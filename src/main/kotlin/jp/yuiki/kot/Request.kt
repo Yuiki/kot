@@ -58,8 +58,8 @@ class Request(input: InputStream) {
 
     fun makeHeadersMap(headersStr: String) {
         headersStr.split("\n").forEach { headerStr ->
-            val splits = headerStr.split(Regex(":\\s"))
-            headers[splits[0]] = splits[1]
+            val splits = headerStr.split(':', limit = 2)
+            headers[splits[0].trim()] = splits[1].trim()
         }
     }
 }
