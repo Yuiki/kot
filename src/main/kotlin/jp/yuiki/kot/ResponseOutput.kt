@@ -2,7 +2,7 @@ package jp.yuiki.kot
 
 import java.io.OutputStream
 
-class IOWrapper(val out: OutputStream) {
+class ResponseOutput(val out: OutputStream) {
     fun println() {
         println("")
     }

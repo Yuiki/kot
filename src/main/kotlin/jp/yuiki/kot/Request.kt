@@ -8,26 +8,21 @@ import java.util.*
 
 class Request(input: InputStream) {
     val reader = BufferedReader(InputStreamReader(input, "UTF-8"))
-    var requestLine = ""
-    var method: Method? = null
-    var path: String? = null
+    var requestLine: String
+    var method: Method
+    var path: String
     val headers = Headers()
-    var body = ""
+    var body: String
 
     init {
-        readRequestLine()
-        readHeaders()
-        readBody()
-    }
+        requestLine = reader.readLine()
+        val splits = requestLine.split("\\s".toRegex())
+        method = Method.valueOf(splits[0].toUpperCase())
+        path = URLDecoder.decode(splits[1], "UTF-8")
 
-    fun readRequestLine() {
-        val line = reader.readLine()
-        if (line.isNotEmpty()) {
-            requestLine = line
-            val splits = requestLine.split("\\s".toRegex())
-            method = Method.valueOf(splits[0].toUpperCase())
-            path = URLDecoder.decode(splits[1], "UTF-8")
-        }
+        readHeaders()
+
+        body = readBody()
     }
 
     fun readHeaders() {
@@ -43,11 +38,12 @@ class Request(input: InputStream) {
         headers.makeHeadersMap(headersStr.toString())
     }
 
-    fun readBody() {
+    fun readBody(): String {
         var bodyChars = CharArray(headers.getContentLength())
+        // TODO: マルチバイト文字がbodyに含まれている場合、無駄なバイトまで読み込んでいるので改善する必要がある
         reader.read(bodyChars)
         bodyChars = deleteTrailingNullChars(bodyChars)
-        body = String(bodyChars)
+        return String(bodyChars)
     }
 
     fun deleteTrailingNullChars(chars: CharArray): CharArray {
@@ -61,13 +57,5 @@ class Request(input: InputStream) {
             }
         }
         return Arrays.copyOf(chars, size)
-    }
-
-    fun isGet(): Boolean {
-        return method == Method.GET
-    }
-
-    fun isPost(): Boolean {
-        return method == Method.POST
     }
 }

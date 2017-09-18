@@ -12,15 +12,14 @@ enum class ContentType(val type: String, vararg val extensions: String) {
     override fun toString() = type
 
     companion object {
-        fun ofByExtension(target: String): ContentType {
-            values().forEach { type ->
-                type.extensions.forEach { extension ->
-                    if (extension == target) {
-                        return type
-                    }
-                }
-            }
-            return TEXT_PLAIN
+        val mapping = HashMap<String, ContentType>()
+
+        init {
+            values().forEach { type -> type.extensions.forEach { mapping.put(it, type) } }
+        }
+
+        fun valueOfByExtension(target: String): ContentType {
+            return mapping.getOrElse(target) { TEXT_PLAIN }
         }
     }
 }

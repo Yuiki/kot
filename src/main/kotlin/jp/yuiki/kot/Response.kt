@@ -8,23 +8,23 @@ class Response(val status: Status, val headers: Headers) {
     var bodyStr: String? = null
     var bodyFile: File? = null
 
-    fun send(out: OutputStream) {
-        val io = IOWrapper(out)
-        io.println("HTTP/1.1 ${this.status}")
+    fun send(outStream: OutputStream) {
+        val output = ResponseOutput(outStream)
+        output.println("HTTP/1.1 ${this.status}")
 
-        headers.headers.forEach { k, v -> io.println("$k: $v") }
+        headers.headers.forEach { output.println("${it.key}: ${it.value}") }
 
         if (bodyStr != null) {
-            io.println()
-            io.print(bodyStr!!)
+            output.println()
+            output.print(bodyStr!!)
         } else if (bodyFile != null) {
-            io.println()
-            Files.copy(bodyFile!!.toPath(), out)
+            output.println()
+            Files.copy(bodyFile!!.toPath(), outStream)
         }
     }
 
     class Builder {
-        var status = Status.OK
+        var status: Status? = null
         var headers = Headers()
         var bodyStr: String? = null
         var bodyFile: File? = null
@@ -50,13 +50,17 @@ class Response(val status: Status, val headers: Headers) {
         }
 
         fun build(): Response {
-            val response = Response(status, headers)
+            if (status == null) {
+                throw IllegalStateException()
+            }
+
+            val response = Response(status!!, headers)
             if (bodyStr != null) {
                 response.bodyStr = bodyStr
                 addHeader("Content-Type", ContentType.TEXT_PLAIN.toString())
             } else if (bodyFile != null) {
                 response.bodyFile = bodyFile
-                addHeader("Content-Type", ContentType.ofByExtension(bodyFile!!.extension).toString())
+                addHeader("Content-Type", ContentType.valueOfByExtension(bodyFile!!.extension).toString())
             }
             return response
         }
