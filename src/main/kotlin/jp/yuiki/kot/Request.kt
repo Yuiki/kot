@@ -50,6 +50,7 @@ class Request(input: InputStream) {
             val char = chars[i]
             if (char == '\u0000') {
                 size = i
+            } else {
                 break
             }
         }
