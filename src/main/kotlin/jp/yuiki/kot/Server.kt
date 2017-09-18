@@ -7,14 +7,19 @@ import java.util.concurrent.Executors
 
 class Server(val port: Int) {
     val executor: ExecutorService = Executors.newCachedThreadPool()
+
+    var alive = true
+
     fun start() {
-        println("start >>>")
         ServerSocket(port).use {
-            while (true) {
+            while (alive) {
                 process(it)
             }
         }
-        println("<<< end")
+    }
+
+    fun stop() {
+        alive = false
     }
 
     fun process(server: ServerSocket) {
