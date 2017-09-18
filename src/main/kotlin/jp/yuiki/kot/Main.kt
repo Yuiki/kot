@@ -12,11 +12,20 @@ fun main(args: Array<String>) {
     println(request.requestLine)
     println(request.headers)
     println(request.body)
-    val responseBuilder = Response.Builder().status(Status.OK)
+    val responseBuilder = Response.Builder()
     if (request.isGet()) {
-        responseBuilder.body(File("./src/main/resources/${request.path}"))
+        val file = File("./src/main/resources/${request.path}")
+
+        if (file.exists() && file.isFile) {
+            responseBuilder.body(file)
+                    .status(Status.OK)
+        } else {
+            responseBuilder.body("404 Not Found")
+                    .status(Status.NOT_FOUND)
+        }
     } else if (request.isPost()) {
         responseBuilder.body(request.body)
+                .status(Status.OK)
     }
     val output = socket.getOutputStream()
     responseBuilder.build().send(output)
